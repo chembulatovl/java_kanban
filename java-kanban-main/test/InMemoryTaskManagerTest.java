@@ -6,17 +6,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.Managers;
 import service.TaskManager;
+import service.HistoryManager;
 
-import java.util.List;
 
 
 class InMemoryTaskManagerTest {
 
     private TaskManager taskManager;
+    private HistoryManager historyManager;
 
     @BeforeEach
     void init() {
         taskManager = Managers.getDefault();
+        historyManager = Managers.getDefaultHistoryManager();
     }
 
     @Test
@@ -163,9 +165,8 @@ class InMemoryTaskManagerTest {
         Subtask actualUpdatedSubtask = taskManager.getSubtaskById(subtask.getId());
         Assertions.assertEquals(subtask, actualUpdatedSubtask);
         taskManager.deleteSubtaskById(subtask.getId());
-        Subtask deletedSubtfsk = taskManager.getSubtaskById(subtask.getId());
-
-        Assertions.assertNull(deletedSubtfsk, "Подзадача с " + subtask.getId() + " id не удалёна");
+        Subtask deletedSubtask = taskManager.getSubtaskById(subtask.getId());
+        Assertions.assertNull(deletedSubtask, "Подзадача с " + subtask.getId() + " id не удалёна");
     }
 
     @Test
@@ -180,7 +181,7 @@ class InMemoryTaskManagerTest {
         taskManager.deleteAllEpics();
 
         Assertions.assertEquals(0, taskManager.getSubtasks().size(), "Не удалось удалить все подзадачи");
-        Assertions.assertNotNull(taskManager.getSubtasks());
+        Assertions.assertNotNull(taskManager.getSubtasks(), "Список задач не должен быть null");
     }
 
     @Test
@@ -270,25 +271,6 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(task.getId(), checkedTask.getId());
         Assertions.assertEquals(task, checkedTask, "Задачи не равны");
 
-    }
-
-    @Test
-    void checkThatTaskAddedToHistoryManagerRetainPreviousVersion() {
-        Task task = new Task("Задача_1", "Описание_1");
-
-        taskManager.createTask(task);
-        taskManager.getTaskById(task.getId());
-        Task newTask = new Task("Новая_Задача_1", "Новое_Описание_1");
-        newTask.setId(task.getId());
-        newTask.setTitle("Новая_Задача_1");
-        newTask.setDescription("Новое_Описание_1");
-        taskManager.updateTask(newTask);
-        taskManager.getTaskById(newTask.getId());
-        List<Task> history = taskManager.getHistory();
-
-        Assertions.assertEquals(2, history.size(), "Должно быть 2 задачи");
-        Assertions.assertEquals(task, history.get(0), "Первой задачи нет");
-        Assertions.assertEquals(newTask, history.get(1), "Второй задачи нет");
     }
 }
 

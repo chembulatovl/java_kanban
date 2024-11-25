@@ -7,20 +7,22 @@ import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    private final int MAX_SIZE_OF_HISTORY = 10;
+    private final LinkedListCustom history = new LinkedListCustom();
 
-    private final List<Task> history = new ArrayList<>();
+
 
     @Override
-    public void addTask(Task task) {
-        if (history.size() >= MAX_SIZE_OF_HISTORY) {
-            history.removeFirst();
-        }
+    public void addInHistory(Task task) {
         history.add(task);
     }
 
     @Override
+    public void removeFromHistory(int id) {
+        history.remove(id);
+    }
+
+    @Override
     public List<Task> getHistory() {
-        return new ArrayList<>(history);
+        return history.getTasks();
     }
 }
